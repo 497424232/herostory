@@ -15,13 +15,15 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * 服务启动类
+ *
  * @auther changmk
  * @date 2020/1/8 下午11:09
  */
 public class ServerMain {
 
 
-    private final Logger logger = LoggerFactory.getLogger(ServerMain.class);
+//    private static final Logger logger = LoggerFactory.getLogger(ServerMain.class);
 
     public static void main(String[] args) {
 
@@ -39,8 +41,10 @@ public class ServerMain {
             protected void initChannel(SocketChannel ch) throws Exception {
                 ch.pipeline().addLast(
                         new HttpServerCodec(),
-                        new HttpObjectAggregator(65533),
+                        new HttpObjectAggregator(65535),
                         new WebSocketServerProtocolHandler("/websocket"),
+                        new GameMsgDecoder(),
+                        new GameMsgEncoder(),
                         new GameMsgHandler()
                 );
             }
@@ -49,7 +53,21 @@ public class ServerMain {
             ChannelFuture channelFuture = serverBootstrap.bind(12345).sync();
             if (channelFuture.isSuccess()) {
                 System.out.println("启动服务成功");
+//                logger.info("服务启动成功");
             }
+
+            // 绑定 12345 端口,
+            // 注意: 实际项目中会使用 argArray 中的参数来指定端口号
+            ChannelFuture f = serverBootstrap.bind(12345).sync();
+
+            if (f.isSuccess()) {
+                System.out.println("启动服务成功");
+//                logger.info("服务器启动成功!");
+            }
+
+            // 等待服务器信道关闭,
+            // 也就是不要立即退出应用程序, 让应用程序可以一直提供服务
+            f.channel().closeFuture().sync();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

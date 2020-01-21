@@ -33,23 +33,23 @@ public class GameMsgDecoder extends ChannelInboundHandlerAdapter {
         // 读取消息编号
         int msgCode = byteBuf.readShort();
 
-        byte[] msgBytes = new byte[byteBuf.readableBytes()];
-        byteBuf.readBytes(msgBytes);
+        byte[] msgBody = new byte[byteBuf.readableBytes()];
+        byteBuf.readBytes(msgBody);
 
         GeneratedMessageV3 cmd = null;
 
         switch (msgCode) {
             case GameMsgProtocol.MsgCode.USER_ENTRY_CMD_VALUE :
-                cmd = GameMsgProtocol.UserEntryCmd.parseFrom(msgBytes);
-            break;
+                cmd = GameMsgProtocol.UserEntryCmd.parseFrom(msgBody);
+                break;
 
             case GameMsgProtocol.MsgCode.WHO_ELSE_IS_HERE_CMD_VALUE :
-                cmd = GameMsgProtocol.WhoElseIsHereCmd.parseFrom(msgBytes);
-            break;
+                cmd = GameMsgProtocol.WhoElseIsHereCmd.parseFrom(msgBody);
+                break;
 
             case GameMsgProtocol.MsgCode.USER_MOVE_TO_CMD_VALUE :
-                cmd = GameMsgProtocol.UserMoveToCmd.parseFrom(msgBytes);
-            break;
+                cmd = GameMsgProtocol.UserMoveToCmd.parseFrom(msgBody);
+                break;
 
         }
 

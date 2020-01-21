@@ -1,12 +1,9 @@
 package org.tinygame.herostory;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
-import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
-import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import org.slf4j.Logger;
@@ -33,7 +30,7 @@ public class GameMsgHandler extends SimpleChannelInboundHandler<Object> {
     /**
      * 用户字典
      */
-    private static Map<Integer, User> userMap = new HashMap<>();
+    private static final Map<Integer, User> userMap = new HashMap<>();
 
     private static final Logger logger = LoggerFactory.getLogger(GameMsgHandler.class);
 
@@ -47,7 +44,7 @@ public class GameMsgHandler extends SimpleChannelInboundHandler<Object> {
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
         super.handlerRemoved(ctx);
 
-        _channelGroup.remove(ctx);
+        _channelGroup.remove(ctx.channel());
 
         //先拿到用户id
         Integer userId = (Integer) ctx.channel().attr(AttributeKey.valueOf("userId")).get();
@@ -95,9 +92,7 @@ public class GameMsgHandler extends SimpleChannelInboundHandler<Object> {
             // 构建结果并发送
             GameMsgProtocol.UserEntryResult newResult = resultBuilder.build();
             _channelGroup.writeAndFlush(newResult);
-        } else if (msg instanceof GameMsgProtocol.WhoElseIsHereResult) {
-            GameMsgProtocol.WhoElseIsHereResult cmd = (GameMsgProtocol.WhoElseIsHereResult) msg;
-
+        } else if (msg instanceof GameMsgProtocol.WhoElseIsHereCmd) {
             GameMsgProtocol.WhoElseIsHereResult.Builder resultBuilder = GameMsgProtocol.WhoElseIsHereResult.newBuilder();
             for (User currentUser : userMap.values()) {
                 if (null == currentUser) {
@@ -127,21 +122,9 @@ public class GameMsgHandler extends SimpleChannelInboundHandler<Object> {
             resultBuilder.setMoveToPosY(cmd.getMoveToPosY());
 
             GameMsgProtocol.UserMoveToResult newResult = resultBuilder.build();
-            ctx.writeAndFlush(newResult);
+            _channelGroup.writeAndFlush(newResult);
         }
 
 
-//        // WebSocket 二进制消息会通过 HttpServerCodec 解码成 BinaryWebSocketFrame 类对象
-//        BinaryWebSocketFrame frame = (BinaryWebSocketFrame) msg;
-//        ByteBuf byteBuf = frame.content();
-//        // 拿到真实的字节数组并打印
-//        byte[] byteArray = new byte[byteBuf.readableBytes()];
-//        byteBuf.readBytes(byteArray);
-//        System.out.println("收到的字节为：");
-//        for (byte b : byteArray) {
-//            System.out.print(b);
-//            System.out.print(", ");
-//        }
-//        System.out.println();
     }
 }

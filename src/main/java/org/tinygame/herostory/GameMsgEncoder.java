@@ -17,7 +17,7 @@ import org.tinygame.herostory.msg.GameMsgProtocol;
  **/
 public class GameMsgEncoder extends ChannelOutboundHandlerAdapter {
 
-    private static Logger logger = LoggerFactory.getLogger(GameMsgEncoder.class);
+    private static final Logger logger = LoggerFactory.getLogger(GameMsgEncoder.class);
 
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
@@ -53,7 +53,6 @@ public class GameMsgEncoder extends ChannelOutboundHandlerAdapter {
         byteBuf.writeBytes(msgBody);
 
         BinaryWebSocketFrame frame = new BinaryWebSocketFrame(byteBuf);
-        super.write(ctx, msg, promise);
-
+        super.write(ctx, frame, promise);
     }
 }

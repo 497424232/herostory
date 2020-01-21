@@ -50,12 +50,6 @@ public class ServerMain {
             }
         });
         try {
-            ChannelFuture channelFuture = serverBootstrap.bind(12345).sync();
-            if (channelFuture.isSuccess()) {
-                System.out.println("启动服务成功");
-//                logger.info("服务启动成功");
-            }
-
             // 绑定 12345 端口,
             // 注意: 实际项目中会使用 argArray 中的参数来指定端口号
             ChannelFuture f = serverBootstrap.bind(12345).sync();

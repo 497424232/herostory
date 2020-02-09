@@ -9,10 +9,9 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinygame.herostory.entity.User;
+import org.tinygame.herostory.entity.UserManager;
 import org.tinygame.herostory.msg.GameMsgProtocol;
 
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * 自定义消息触发器
@@ -27,24 +26,19 @@ public class GameMsgHandler extends SimpleChannelInboundHandler<Object> {
      */
     private static final ChannelGroup _channelGroup = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 
-    /**
-     * 用户字典
-     */
-    private static final Map<Integer, User> userMap = new HashMap<>();
-
     private static final Logger logger = LoggerFactory.getLogger(GameMsgHandler.class);
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
-        _channelGroup.add(ctx.channel());
+        Broadcaster.addChannel(ctx.channel());
     }
 
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
         super.handlerRemoved(ctx);
 
-        _channelGroup.remove(ctx.channel());
+        Broadcaster.removeChannel(ctx.channel());
 
         //先拿到用户id
         Integer userId = (Integer) ctx.channel().attr(AttributeKey.valueOf("userId")).get();
@@ -52,13 +46,13 @@ public class GameMsgHandler extends SimpleChannelInboundHandler<Object> {
             return;
         }
 
-        userMap.remove(userId);
+        UserManager.removeUser(userId);
 
         GameMsgProtocol.UserQuitResult.Builder resultBuilder = GameMsgProtocol.UserQuitResult.newBuilder();
         resultBuilder.setQuitUserId(userId);
 
         GameMsgProtocol.UserQuitResult newResult = resultBuilder.build();
-        _channelGroup.writeAndFlush(newResult);
+        Broadcaster.broadcast(newResult);
     }
 
     @Override
@@ -84,17 +78,17 @@ public class GameMsgHandler extends SimpleChannelInboundHandler<Object> {
             newUser.setUserId(userId);
             newUser.setHeroAvatar(avatar);
 
-            userMap.put(userId, newUser);
+            UserManager.addUser(newUser);
 
             // 将用户id 附着在channel
             ctx.channel().attr(AttributeKey.valueOf("userId")).set(userId);
 
             // 构建结果并发送
             GameMsgProtocol.UserEntryResult newResult = resultBuilder.build();
-            _channelGroup.writeAndFlush(newResult);
+            Broadcaster.broadcast(newResult);
         } else if (msg instanceof GameMsgProtocol.WhoElseIsHereCmd) {
             GameMsgProtocol.WhoElseIsHereResult.Builder resultBuilder = GameMsgProtocol.WhoElseIsHereResult.newBuilder();
-            for (User currentUser : userMap.values()) {
+            for (User currentUser : UserManager.listUser()) {
                 if (null == currentUser) {
                     continue;
                 }
@@ -122,7 +116,7 @@ public class GameMsgHandler extends SimpleChannelInboundHandler<Object> {
             resultBuilder.setMoveToPosY(cmd.getMoveToPosY());
 
             GameMsgProtocol.UserMoveToResult newResult = resultBuilder.build();
-            _channelGroup.writeAndFlush(newResult);
+            Broadcaster.broadcast(newResult);
         }
 
 

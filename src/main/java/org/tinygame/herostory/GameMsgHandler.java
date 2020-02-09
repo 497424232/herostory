@@ -1,5 +1,6 @@
 package org.tinygame.herostory;
 
+import com.google.protobuf.GeneratedMessageV3;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.group.ChannelGroup;
@@ -8,6 +9,7 @@ import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinygame.herostory.cmdHandler.*;
 import org.tinygame.herostory.entity.User;
 import org.tinygame.herostory.entity.UserManager;
 import org.tinygame.herostory.msg.GameMsgProtocol;
@@ -21,10 +23,7 @@ import org.tinygame.herostory.msg.GameMsgProtocol;
  */
 public class GameMsgHandler extends SimpleChannelInboundHandler<Object> {
 
-    /**
-     * 客户端信道数组，必须用static
-     */
-    private static final ChannelGroup _channelGroup = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
+
 
     private static final Logger logger = LoggerFactory.getLogger(GameMsgHandler.class);
 
@@ -63,62 +62,27 @@ public class GameMsgHandler extends SimpleChannelInboundHandler<Object> {
             return;
         }
 
-        if (msg instanceof GameMsgProtocol.UserEntryCmd) {
-            // 从指令对象中获取用户id和英雄形象
-            GameMsgProtocol.UserEntryCmd cmd = (GameMsgProtocol.UserEntryCmd)msg;
-            Integer userId = cmd.getUserId();
-            String avatar = cmd.getHeroAvatar();
+        ICmdHandler<? extends GeneratedMessageV3> cmdHandler = null;
 
-            GameMsgProtocol.UserEntryResult.Builder resultBuilder = GameMsgProtocol.UserEntryResult.newBuilder();
-            resultBuilder.setUserId(userId);
-            resultBuilder.setHeroAvatar(avatar);
+        cmdHandler = CmdHandlerFactory.create(msg);
 
-            //将用户加入字典
-            User newUser = new User();
-            newUser.setUserId(userId);
-            newUser.setHeroAvatar(avatar);
-
-            UserManager.addUser(newUser);
-
-            // 将用户id 附着在channel
-            ctx.channel().attr(AttributeKey.valueOf("userId")).set(userId);
-
-            // 构建结果并发送
-            GameMsgProtocol.UserEntryResult newResult = resultBuilder.build();
-            Broadcaster.broadcast(newResult);
-        } else if (msg instanceof GameMsgProtocol.WhoElseIsHereCmd) {
-            GameMsgProtocol.WhoElseIsHereResult.Builder resultBuilder = GameMsgProtocol.WhoElseIsHereResult.newBuilder();
-            for (User currentUser : UserManager.listUser()) {
-                if (null == currentUser) {
-                    continue;
-                }
-
-                GameMsgProtocol.WhoElseIsHereResult.UserInfo.Builder userInfoBuilder = GameMsgProtocol.WhoElseIsHereResult.UserInfo.newBuilder();
-                userInfoBuilder.setUserId(currentUser.getUserId());
-                userInfoBuilder.setHeroAvatar(currentUser.getHeroAvatar());
-                resultBuilder.addUserInfo(userInfoBuilder);
-            }
-            GameMsgProtocol.WhoElseIsHereResult newResult = resultBuilder.build();
-            ctx.writeAndFlush(newResult);
-        } else if (msg instanceof GameMsgProtocol.UserMoveToCmd) {
-
-            Integer userId = (Integer) ctx.channel().attr(AttributeKey.valueOf("userId")).get();
-
-            if (null == userId) {
-                return;
-            }
-
-            GameMsgProtocol.UserMoveToCmd cmd = (GameMsgProtocol.UserMoveToCmd) msg;
-
-            GameMsgProtocol.UserMoveToResult.Builder resultBuilder = GameMsgProtocol.UserMoveToResult.newBuilder();
-            resultBuilder.setMoveUserId(userId);
-            resultBuilder.setMoveToPosX(cmd.getMoveToPosX());
-            resultBuilder.setMoveToPosY(cmd.getMoveToPosY());
-
-            GameMsgProtocol.UserMoveToResult newResult = resultBuilder.build();
-            Broadcaster.broadcast(newResult);
+        if (null != cmdHandler) {
+            cmdHandler.handle(ctx, cast(msg));
         }
-
-
     }
+
+    /**
+     * 转型消息对象--转换msg
+     * @param msg
+     * @param <TCmd>
+     * @return
+     */
+    private static <TCmd extends GeneratedMessageV3> TCmd cast(Object msg) {
+        if (null == msg) {
+            return null;
+        } else {
+            return (TCmd) msg;
+        }
+    }
+
 }

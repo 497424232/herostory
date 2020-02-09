@@ -12,6 +12,9 @@ import java.util.Map;
  */
 public final class UserManager {
 
+    /**
+     * 用户字典
+     */
     private static final Map<Integer, User> userMap = new HashMap<>();
 
     private UserManager(){

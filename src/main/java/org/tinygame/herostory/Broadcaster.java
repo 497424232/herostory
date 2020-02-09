@@ -12,6 +12,9 @@ import io.netty.util.concurrent.GlobalEventExecutor;
  */
 public final class Broadcaster {
 
+    /**
+     * 客户端信道数组，必须用static
+     */
     private static final ChannelGroup channelGroup = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 
     private Broadcaster(){

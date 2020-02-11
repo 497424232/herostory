@@ -12,6 +12,7 @@ import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinygame.herostory.cmdHandler.CmdHandlerFactory;
 
 
 /**
@@ -26,6 +27,11 @@ public class ServerMain {
 //    private static final Logger logger = LoggerFactory.getLogger(ServerMain.class);
 
     public static void main(String[] args) {
+
+        // 注册所有handler
+        CmdHandlerFactory.init();
+        // 初始化消息转换map
+        GameMsgRecognizer.init();
 
         //接收任务的事件
         EventLoopGroup bossGroup = new NioEventLoopGroup();

@@ -1,11 +1,10 @@
 package org.tinygame.herostory.cmdHandler;
 
-import com.google.protobuf.GeneratedMessageV3;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
 import org.tinygame.herostory.Broadcaster;
-import org.tinygame.herostory.entity.User;
-import org.tinygame.herostory.entity.UserManager;
+import org.tinygame.herostory.model.User;
+import org.tinygame.herostory.model.UserManager;
 import org.tinygame.herostory.msg.GameMsgProtocol;
 
 /**

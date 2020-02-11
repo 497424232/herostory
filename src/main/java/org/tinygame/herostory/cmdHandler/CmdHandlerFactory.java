@@ -3,6 +3,9 @@ package org.tinygame.herostory.cmdHandler;
 import com.google.protobuf.GeneratedMessageV3;
 import org.tinygame.herostory.msg.GameMsgProtocol;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * 指令处理工厂
  * @auther changmk
@@ -10,24 +13,27 @@ import org.tinygame.herostory.msg.GameMsgProtocol;
  */
 public final class CmdHandlerFactory {
 
+    private static Map<Class<?>, ICmdHandler<? extends GeneratedMessageV3>> handlerMap = new HashMap<>();
+
     private CmdHandlerFactory() {
 
     }
 
+    public static void init() {
+        handlerMap.put(GameMsgProtocol.UserEntryCmd.class, new UserEntryCmdHandler());
+        handlerMap.put(GameMsgProtocol.WhoElseIsHereCmd.class, new WhoElseIsHereCmdHandler());
+        handlerMap.put(GameMsgProtocol.UserMoveToCmd.class, new UserMoveToCmdHandler());
+    }
+
     /**
      * 创建CmdHandler
-     * @param msg
+     * @param msgClazz
      * @return
      */
-    public static ICmdHandler<? extends GeneratedMessageV3> create(Object msg) {
-        if (msg instanceof GameMsgProtocol.UserEntryCmd) {
-            return new UserEntryCmdHandler();
-        } else if (msg instanceof GameMsgProtocol.WhoElseIsHereCmd) {
-            return new WhoElseIsHereCmdHandler();
-        } else if (msg instanceof GameMsgProtocol.UserMoveToCmd) {
-            return new UserMoveToCmdHandler();
-        } else {
+    public static ICmdHandler<? extends GeneratedMessageV3> create(Class<?> msgClazz) {
+        if (null == msgClazz) {
             return null;
         }
+        return handlerMap.get(msgClazz);
     }
 }

@@ -3,15 +3,11 @@ package org.tinygame.herostory;
 import com.google.protobuf.GeneratedMessageV3;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.channel.group.ChannelGroup;
-import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.util.AttributeKey;
-import io.netty.util.concurrent.GlobalEventExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinygame.herostory.cmdHandler.*;
-import org.tinygame.herostory.entity.User;
-import org.tinygame.herostory.entity.UserManager;
+import org.tinygame.herostory.model.UserManager;
 import org.tinygame.herostory.msg.GameMsgProtocol;
 
 
@@ -62,9 +58,7 @@ public class GameMsgHandler extends SimpleChannelInboundHandler<Object> {
             return;
         }
 
-        ICmdHandler<? extends GeneratedMessageV3> cmdHandler = null;
-
-        cmdHandler = CmdHandlerFactory.create(msg);
+        ICmdHandler<? extends GeneratedMessageV3> cmdHandler = CmdHandlerFactory.create(msg.getClass());
 
         if (null != cmdHandler) {
             cmdHandler.handle(ctx, cast(msg));

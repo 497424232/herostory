@@ -1,4 +1,4 @@
-package org.tinygame.herostory.entity;
+package org.tinygame.herostory.model;
 
 import java.util.Collection;
 import java.util.HashMap;

@@ -42,7 +42,8 @@ public final class Broadcaster {
      * @param msg
      */
     public static void broadcast(Object msg) {
-        if (null != msg) {
+        // 这里判断条件写错过，导致无法群发消息
+        if (null == msg) {
             return;
         }
         channelGroup.writeAndFlush(msg);

@@ -1,6 +1,7 @@
 package org.tinygame.herostory.cmdHandler;
 
 import io.netty.channel.ChannelHandlerContext;
+import org.tinygame.herostory.model.MoveState;
 import org.tinygame.herostory.model.User;
 import org.tinygame.herostory.model.UserManager;
 import org.tinygame.herostory.msg.GameMsgProtocol;
@@ -22,6 +23,21 @@ public class WhoElseIsHereCmdHandler implements ICmdHandler<GameMsgProtocol.WhoE
             GameMsgProtocol.WhoElseIsHereResult.UserInfo.Builder userInfoBuilder = GameMsgProtocol.WhoElseIsHereResult.UserInfo.newBuilder();
             userInfoBuilder.setUserId(currentUser.getUserId());
             userInfoBuilder.setHeroAvatar(currentUser.getHeroAvatar());
+
+            //构建用户移动状态
+            MoveState moveState = currentUser.getMoveState();
+            GameMsgProtocol.WhoElseIsHereResult.UserInfo.MoveState.Builder moveStateBuilder
+                    = GameMsgProtocol.WhoElseIsHereResult.UserInfo.MoveState.newBuilder();
+
+            moveStateBuilder.setFromPosX(moveState.fromPosX);
+            moveStateBuilder.setFromPosY(moveState.fromPosY);
+            moveStateBuilder.setToPosX(moveState.toPosX);
+            moveStateBuilder.setToPosY(moveState.toPosY);
+            moveStateBuilder.setStartTime(moveState.startTime);
+
+            //将移动状态传递给移动用户
+            userInfoBuilder.setMoveState(moveStateBuilder);
+
             resultBuilder.addUserInfo(userInfoBuilder);
         }
         GameMsgProtocol.WhoElseIsHereResult newResult = resultBuilder.build();

@@ -11,6 +11,10 @@ public class User {
 
     private String heroAvatar;
 
+    private int currentHp;
+
+    private MoveState moveState;
+
     public int getUserId() {
         return userId;
     }
@@ -25,5 +29,21 @@ public class User {
 
     public void setHeroAvatar(String heroAvatar) {
         this.heroAvatar = heroAvatar;
+    }
+
+    public int getCurrentHp() {
+        return currentHp;
+    }
+
+    public void setCurrentHp(int currentHp) {
+        this.currentHp = currentHp;
+    }
+
+    public MoveState getMoveState() {
+        return moveState;
+    }
+
+    public void setMoveState(MoveState moveState) {
+        this.moveState = moveState;
     }
 }

@@ -46,4 +46,14 @@ public final class UserManager {
     public static Collection<User> listUser() {
         return userMap.values();
     }
+
+    /**
+     * 根据用户id获取用户
+     *
+     * @param userId
+     * @return
+     */
+    public static User getUserById(Integer userId) {
+        return userMap.get(userId);
+    }
 }

@@ -3,6 +3,7 @@ package org.tinygame.herostory.cmdHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
 import org.tinygame.herostory.Broadcaster;
+import org.tinygame.herostory.model.MoveState;
 import org.tinygame.herostory.model.User;
 import org.tinygame.herostory.model.UserManager;
 import org.tinygame.herostory.msg.GameMsgProtocol;
@@ -28,6 +29,8 @@ public class UserEntryCmdHandler implements ICmdHandler<GameMsgProtocol.UserEntr
         User newUser = new User();
         newUser.setUserId(userId);
         newUser.setHeroAvatar(avatar);
+        newUser.setCurrentHp(100);
+        newUser.setMoveState(new MoveState());
 
         UserManager.addUser(newUser);
 

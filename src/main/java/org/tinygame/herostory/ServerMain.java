@@ -32,6 +32,8 @@ public class ServerMain {
         CmdHandlerFactory.init();
         // 初始化消息转换map
         GameMsgRecognizer.init();
+        // 初始化SQLSession
+        MySqlSessionFactory.init();
 
         //接收任务的事件
         EventLoopGroup bossGroup = new NioEventLoopGroup();

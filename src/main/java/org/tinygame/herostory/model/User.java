@@ -9,6 +9,8 @@ public class User {
 
     private int userId;
 
+    private String userName;
+
     private String heroAvatar;
 
     private int currentHp;
@@ -45,5 +47,13 @@ public class User {
 
     public void setMoveState(MoveState moveState) {
         this.moveState = moveState;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 }

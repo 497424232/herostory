@@ -1,6 +1,8 @@
 import java.util.concurrent.*;
 
 /**
+ * 模拟线程池
+ *
  * @auther changmk
  * @date 2020/3/7 下午11:24
  */
@@ -11,9 +13,12 @@ public class TestBlockingQueue {
         test.test2();
     }
 
+    /**
+     * 测试阻塞队列
+     */
     private void test1() {
         final BlockingQueue<Integer> blockingQueue = new LinkedBlockingQueue<>();
-
+        // 线程1 往队列里放数
         Thread thread1 = new Thread(() -> {
             for (int i = 0; i < 10; i++ ) {
                 try {
@@ -24,7 +29,7 @@ public class TestBlockingQueue {
                 blockingQueue.offer(i);
             }
         });
-
+        // 线程2 往队列中放数
         Thread thread2 = new Thread(() -> {
             for (int i = 10; i < 20; i++ ) {
                 try {
@@ -35,7 +40,7 @@ public class TestBlockingQueue {
                 blockingQueue.offer(i);
             }
         });
-
+        // 线程3 在队列中取数
         Thread thread3 = new Thread(() -> {
             while (true) {
                 try {
@@ -63,7 +68,9 @@ public class TestBlockingQueue {
         ExecutorService executorService = Executors.newSingleThreadExecutor();
     }
 
-
+    /**
+     * 测试调用自己的ExecutorService
+     */
     private void test2() {
         MyExecutorService myExecutorService = new MyExecutorService();
 
@@ -109,7 +116,9 @@ public class TestBlockingQueue {
 
     }
 
-
+    /**
+     * 创建自己的ExecutorService
+     */
     class MyExecutorService {
         BlockingQueue<Runnable> blockingQueue = new LinkedBlockingQueue();
 
@@ -128,7 +137,7 @@ public class TestBlockingQueue {
                     }
                 }
             });
-
+            // 注意：不要忘了启动此线程
             thread.start();
         }
 

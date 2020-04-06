@@ -28,39 +28,41 @@ public class UserLoginCmdHandler implements ICmdHandler<GameMsgProtocol.UserLogi
             return;
         }
 
-        UserEntity userEntity = null;
         try {
-            userEntity = LoginService.getInstance().userLogin(msg.getUserName(), msg.getPassword());
+            LoginService.getInstance().userLogin(msg.getUserName(), msg.getPassword(), (userEntity) -> {
+                if (null == userEntity) {
+                    logger.error("用户登录失败，userName={}", msg.getUserName());
+                    return null;
+                }
+
+                logger.info("用户登录线程：{}", Thread.currentThread().getName());
+
+                User user = new User();
+                user.setUserId(userEntity.userId);
+                user.setUserName(userEntity.userName);
+                user.setHeroAvatar(userEntity.heroAvatar);
+                user.setCurrentHp(100);
+                user.setMoveState(new MoveState());
+
+                // 添加user
+                UserManager.addUser(user);
+
+                //将用户id附着到channel
+                ctx.channel().attr(AttributeKey.valueOf("userId")).set(user.getUserId());
+
+                GameMsgProtocol.UserLoginResult.Builder resultBuilder = GameMsgProtocol.UserLoginResult.newBuilder();
+                resultBuilder.setHeroAvatar(user.getHeroAvatar());
+                resultBuilder.setUserName(user.getUserName());
+                resultBuilder.setUserId(user.getUserId());
+
+                // 构建结果并发送
+                GameMsgProtocol.UserLoginResult newResult = resultBuilder.build();
+                ctx.writeAndFlush(newResult);
+                return null;
+            });
         } catch (Exception ex) {
             logger.error(ex.getMessage(), ex);
         }
-
-        if (null == userEntity) {
-            logger.error("用户登录失败，userName={}", msg.getUserName());
-            return;
-        }
-
-        User user = new User();
-        user.setUserId(userEntity.userId);
-        user.setUserName(userEntity.userName);
-        user.setHeroAvatar(userEntity.heroAvatar);
-        user.setCurrentHp(100);
-        user.setMoveState(new MoveState());
-
-        // 添加user
-        UserManager.addUser(user);
-
-        //将用户id附着到channel
-        ctx.channel().attr(AttributeKey.valueOf("userId")).set(user.getUserId());
-
-        GameMsgProtocol.UserLoginResult.Builder resultBuilder = GameMsgProtocol.UserLoginResult.newBuilder();
-        resultBuilder.setHeroAvatar(user.getHeroAvatar());
-        resultBuilder.setUserName(user.getUserName());
-        resultBuilder.setUserId(user.getUserId());
-
-        // 构建结果并发送
-        GameMsgProtocol.UserLoginResult newResult = resultBuilder.build();
-        ctx.writeAndFlush(newResult);
 
     }
 

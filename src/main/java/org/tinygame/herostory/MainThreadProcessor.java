@@ -73,6 +73,17 @@ public final class MainThreadProcessor {
         });
     }
 
+    /**
+     * 异步处理方法
+     * @param r
+     */
+    public void process(Runnable r) {
+        if (null == r) {
+            return;
+        }
+
+        this.executorService.submit(r);
+    }
 
     /**
      * 转型消息对象--转换msg

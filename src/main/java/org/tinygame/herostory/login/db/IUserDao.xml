@@ -13,6 +13,7 @@
     </select>
 
     <insert id="insertInto">
+        <!--增加后获取用户用户id的方式-->
         <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="userId">
             SELECT last_insert_id() AS user_id
         </selectKey>

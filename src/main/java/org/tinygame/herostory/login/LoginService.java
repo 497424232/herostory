@@ -8,7 +8,6 @@ import org.tinygame.herostory.async.AsyncOperationProcessor;
 import org.tinygame.herostory.async.IAsyncOperation;
 import org.tinygame.herostory.login.db.IUserDao;
 import org.tinygame.herostory.login.db.UserEntity;
-import sun.swing.StringUIClientPropertyKey;
 
 import java.util.function.Function;
 
@@ -79,6 +78,15 @@ public class LoginService {
 
         public UserEntity getUserEntity() {
             return _userEntity;
+        }
+
+        /**
+         * 将用户名称的第一个字母的名称当做特征
+         * @return
+         */
+        @Override
+        public int bindId() {
+            return _userName.charAt(_userName.length() - 1);
         }
 
         @Override

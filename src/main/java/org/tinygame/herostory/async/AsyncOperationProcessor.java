@@ -18,15 +18,32 @@ public class AsyncOperationProcessor {
 
     /**
      * 单线程池 AsyncOperationProcessor
+     *
+     * 修改为多线程处理，长度为8
      */
-    private ExecutorService executorService = Executors.newSingleThreadExecutor(r -> {
+//    private ExecutorService executorService = Executors.newFixedThreadPool(8);
+        /*Executors.newSingleThreadEx、ecutor(r -> {
         Thread thread = new Thread(r);
         thread.setName("AsyncOperationProcessor");
         return thread;
-    });
+    });*/
+
+    /**
+     * 将单线程修改为单线程数组，长度可以选择根据CPU 核数定
+     */
+    private ExecutorService[] esArray = new ExecutorService[8];
 
     private AsyncOperationProcessor() {
-
+        for (int i = 0; i < esArray.length; i++) {
+            // 定义线程池名称
+            final String threadName = "AsyncOperationProcessor_" + i;
+            esArray[i] = Executors.newSingleThreadExecutor(r -> {
+                Thread thread = new Thread(r);
+                thread.setName(threadName);
+                return thread;
+            });
+            
+        }
     }
 
     public static AsyncOperationProcessor getInstance() {
@@ -43,7 +60,11 @@ public class AsyncOperationProcessor {
             return;
         }
 
-        this.executorService.submit(() ->{
+        //todo 根据bindId 取模作为使用线程池的规则
+        int bindId = Math.abs(asyncOperation.bindId());
+        int bindIndex = bindId % this.esArray.length;
+
+        this.esArray[bindIndex].submit(() ->{
             try {
                 //执行异步操作
                 asyncOperation.doAsync();
